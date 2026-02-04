@@ -107,32 +107,19 @@ jobs:
             "src/${{ matrix.image }}/.devcontainer/devcontainer.json" > tmp.json
           mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"
 
-      - name: Install crane
-        uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
+      - name: Generate comma-separated tags
+        id: tags
+        run: |
+          # Convert JSON array to comma-separated string
+          tags='${{ toJson(matrix.tags) }}'
+          tags_csv=$(echo "$tags" | jq -r 'join(",")')
+          echo "tags_csv=${tags_csv}" >> "$GITHUB_OUTPUT"
 
-      - name: Build devcontainer image
+      - name: Build and push image
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
         with:
           imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
-          imageTag: ${{ matrix.tags[0] }}
+          imageTag: ${{ steps.tags.outputs.tags_csv }}
           subFolder: src/${{ matrix.image }}
           platform: ${{ matrix.architectures }}
-          push: never
-
-      - name: Push image with all tags
-        run: |
-          image_name="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}"
-          primary_tag="${{ matrix.tags[0] }}"
-
-          # Push the OCI tar to registry with primary tag
-          echo "Pushing image with tag: ${primary_tag}"
-          crane push /tmp/output.tar "${image_name}:${primary_tag}"
-
-          # Add remaining tags
-          tags='${{ toJson(matrix.tags) }}'
-          for tag in $(echo "$tags" | jq -r '.[]'); do
-            if [[ "$tag" != "$primary_tag" ]]; then
-              echo "Adding tag: ${tag}"
-              crane tag "${image_name}:${primary_tag}" "${tag}"
-            fi
-          done
+          push: always
