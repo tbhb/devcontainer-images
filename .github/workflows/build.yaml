@@ -107,24 +107,28 @@ jobs:
             "src/${{ matrix.image }}/.devcontainer/devcontainer.json" > tmp.json
           mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"
 
-      - name: Build and push with primary tag
+      - name: Install crane
+        uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
+
+      - name: Build devcontainer image
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
         with:
           imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
           imageTag: ${{ matrix.tags[0] }}
           subFolder: src/${{ matrix.image }}
           platform: ${{ matrix.architectures }}
-          push: always
+          push: never
 
-      - name: Install crane
-        uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
-
-      - name: Add additional tags
+      - name: Push image with all tags
         run: |
           image_name="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}"
           primary_tag="${{ matrix.tags[0] }}"
 
-          # Skip first tag (already pushed), add remaining tags using crane
+          # Push the OCI tar to registry with primary tag
+          echo "Pushing image with tag: ${primary_tag}"
+          crane push /tmp/output.tar "${image_name}:${primary_tag}"
+
+          # Add remaining tags
           tags='${{ toJson(matrix.tags) }}'
           for tag in $(echo "$tags" | jq -r '.[]'); do
             if [[ "$tag" != "$primary_tag" ]]; then
