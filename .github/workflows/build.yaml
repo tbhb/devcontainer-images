@@ -1,0 +1,85 @@
+---
+name: Build and push images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Image to build (leave empty for all)'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  detect-images:
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.detect.outputs.images }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Detect images to build
+        id: detect
+        run: |
+          if [[ -n "${{ inputs.image }}" ]]; then
+            images='["${{ inputs.image }}"]'
+          else
+            images=$(find src -maxdepth 1 -mindepth 1 -type d -printf '%f\n' \
+              | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          fi
+          echo "images=${images}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: detect-images
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-images.outputs.images != '[]' }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.detect-images.outputs.images) }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read manifest
+        id: manifest
+        run: |
+          if [[ -f "src/${{ matrix.image }}/manifest.json" ]]; then
+            version=$(jq -r '.version' "src/${{ matrix.image }}/manifest.json")
+            echo "version=${version}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push
+        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
+        with:
+          imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
+          imageTag: ${{ steps.manifest.outputs.version }}
+          subFolder: src/${{ matrix.image }}
+          platform: linux/amd64,linux/arm64
+          push: always

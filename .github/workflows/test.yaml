@@ -1,0 +1,89 @@
+---
+name: Test images
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - '.github/workflows/test.yaml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - '.github/workflows/test.yaml'
+  workflow_dispatch:
+
+jobs:
+  detect-images:
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.detect.outputs.images }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Detect images
+        id: detect
+        run: |
+          images=$(find src -maxdepth 1 -mindepth 1 -type d -printf '%f\n' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "images=${images}" >> "$GITHUB_OUTPUT"
+
+  build-test:
+    needs: detect-images
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-images.outputs.images != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.detect-images.outputs.images) }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Build ${{ matrix.image }}
+        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
+        with:
+          subFolder: src/${{ matrix.image }}
+          push: never
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate image configurations
+        run: |
+          for image in src/*/; do
+            echo "Validating ${image}..."
+            if [[ ! -f "${image}.devcontainer/devcontainer.json" ]]; then
+              echo "ERROR: Missing devcontainer.json in ${image}"
+              exit 1
+            fi
+            jq empty "${image}.devcontainer/devcontainer.json"
+          done
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081 # v5
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint YAML
+        run: uv run yamllint --strict .
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
+        with:
+          recursive: true
+          ignore: DL3008
+
+      - name: Lint GitHub Actions workflows
+        uses: raven-actions/actionlint@e01d1ea33dd6a5ed517d95b4c0c357560ac6f518 # v2
+
+      - name: Check spelling
+        run: uv run codespell

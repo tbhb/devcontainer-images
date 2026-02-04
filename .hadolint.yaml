@@ -1,0 +1,7 @@
+---
+# Hadolint configuration
+# https://github.com/hadolint/hadolint#configure
+
+ignored:
+  # Apt package versions change with base image updates; pinning causes breakage
+  - DL3008
