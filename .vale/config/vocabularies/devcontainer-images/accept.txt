@@ -8,7 +8,9 @@ devcontainers?
 [dD]ockerfiles?
 [hH]adolint
 markdownlint-cli2
+pnpm
 [sS]hell[cC]heck
+[sS]tarship
 [tT]rixie
 uv
 [yY]amllint

@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "variants": {
+    "1.25-trixie": {
+      "goVersion": "1.25",
+      "tags": ["1.25-trixie", "1.25", "1", "trixie", "latest"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "1.25-bookworm": {
+      "goVersion": "1.25",
+      "tags": ["1.25-bookworm"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "1.24-trixie": {
+      "goVersion": "1.24",
+      "tags": ["1.24-trixie"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "1.24-bookworm": {
+      "goVersion": "1.24",
+      "tags": ["1.24-bookworm", "1.24", "bookworm"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    }
+  },
+  "dependencies": {
+    "image": "mcr.microsoft.com/devcontainers/go",
+    "imageLink": "https://github.com/devcontainers/images/tree/main/src/go"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "GO_VERSION": "1.25"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/va-h/devcontainers-features/uv:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers-extra/features/pnpm:2": {
+      "version": "10"
+    },
+    "ghcr.io/tbhb/devcontainer-features/just:1": {
+      "version": "latest"
+    },
+    "ghcr.io/tbhb/devcontainer-features/shellcheck:1": {},
+    "ghcr.io/tbhb/devcontainer-features/zsh-autosuggestions:1": {},
+    "ghcr.io/tbhb/devcontainer-features/zsh-syntax-highlighting:1": {},
+    "ghcr.io/devcontainers-extra/features/starship:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers-extra/features/gh-release:1": {
+      "repo": "hadolint/hadolint",
+      "binaryNames": "hadolint",
+      "version": "2.12.0"
+    }
+  },
+  "containerEnv": {
+    "UV_LINK_MODE": "copy"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go"],
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.lintTool": "golangci-lint",
+        "go.lintFlags": ["--fast"],
+        "[go]": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "go.toolsManagement.autoUpdate": true
+      }
+    }
+  }
+}

@@ -42,10 +42,12 @@ jobs:
           for image in $images; do
             manifest="src/${image}/manifest.json"
             if [[ -f "$manifest" ]]; then
+              # Derive version arg name from image name (e.g., python -> PYTHON_VERSION, go -> GO_VERSION)
+              version_arg_name=$(echo "${image}_VERSION" | tr '[:lower:]' '[:upper:]')
+
               # Read variants from manifest
               variants=$(jq -r '.variants | keys[]' "$manifest")
               for variant in $variants; do
-                python_version=$(jq -r ".variants[\"${variant}\"].pythonVersion" "$manifest")
                 # Get tags as JSON array string for proper parsing later
                 tags=$(jq -c ".variants[\"${variant}\"].tags" "$manifest")
                 archs=$(jq -r ".variants[\"${variant}\"].architectures | join(\",\")" "$manifest")
@@ -54,13 +56,13 @@ jobs:
                 matrix=$(echo "$matrix" | jq \
                   --arg image "$image" \
                   --arg variant "$variant" \
-                  --arg python_version "$python_version" \
+                  --arg version_arg_name "$version_arg_name" \
                   --argjson tags "$tags" \
                   --arg archs "$archs" \
                   '.include += [{
                     "image": $image,
                     "variant": $variant,
-                    "python_version": $python_version,
+                    "version_arg_name": $version_arg_name,
                     "tags": $tags,
                     "architectures": $archs
                   }]')
@@ -101,9 +103,10 @@ jobs:
 
       - name: Update devcontainer.json with variant
         run: |
-          # Update the PYTHON_VERSION build arg to use full variant (e.g., 3.14-trixie)
+          # Update the version build arg to use full variant (e.g., 3.14-trixie, 1.25-bookworm)
           jq --arg version "${{ matrix.variant }}" \
-            '.build.args.PYTHON_VERSION = $version' \
+             --arg arg_name "${{ matrix.version_arg_name }}" \
+            '.build.args[$arg_name] = $version' \
             "src/${{ matrix.image }}/.devcontainer/devcontainer.json" > tmp.json
           mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"
 
