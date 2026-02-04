@@ -108,7 +108,7 @@ jobs:
           mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"
 
       - name: Build and push with primary tag
-        uses: devcontainers/ci@d31b57f8bae24dcd5aacd2d543d11c5c7a1d7e3f # v0.3.2
+        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
         with:
           imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
           imageTag: ${{ matrix.tags[0] }}
