@@ -116,17 +116,19 @@ jobs:
           platform: ${{ matrix.architectures }}
           push: always
 
+      - name: Install crane
+        uses: imjasonh/setup-crane@31b88afe9de28ae0ffa220711af4b60be9435f6e # v0.4
+
       - name: Add additional tags
         run: |
           image_name="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}"
           primary_tag="${{ matrix.tags[0] }}"
 
-          # Skip first tag (already pushed), add remaining tags
+          # Skip first tag (already pushed), add remaining tags using crane
           tags='${{ toJson(matrix.tags) }}'
           for tag in $(echo "$tags" | jq -r '.[]'); do
             if [[ "$tag" != "$primary_tag" ]]; then
               echo "Adding tag: ${tag}"
-              docker tag "${image_name}:${primary_tag}" "${image_name}:${tag}"
-              docker push "${image_name}:${tag}"
+              crane tag "${image_name}:${primary_tag}" "${tag}"
             fi
           done
