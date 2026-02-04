@@ -1,14 +1,54 @@
 {
   "version": "1.0.0",
   "variants": {
+    "3.14-trixie": {
+      "pythonVersion": "3.14",
+      "tags": ["3.14-trixie", "3.14", "3", "trixie", "latest"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.14-bookworm": {
+      "pythonVersion": "3.14",
+      "tags": ["3.14-bookworm"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.13-trixie": {
+      "pythonVersion": "3.13",
+      "tags": ["3.13-trixie"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
     "3.13-bookworm": {
       "pythonVersion": "3.13",
-      "tags": ["3.13-bookworm", "3.13", "latest"],
+      "tags": ["3.13-bookworm", "3.13", "bookworm"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.12-trixie": {
+      "pythonVersion": "3.12",
+      "tags": ["3.12-trixie"],
       "architectures": ["linux/amd64", "linux/arm64"]
     },
     "3.12-bookworm": {
       "pythonVersion": "3.12",
       "tags": ["3.12-bookworm", "3.12"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.11-trixie": {
+      "pythonVersion": "3.11",
+      "tags": ["3.11-trixie"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.11-bookworm": {
+      "pythonVersion": "3.11",
+      "tags": ["3.11-bookworm", "3.11"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.10-trixie": {
+      "pythonVersion": "3.10",
+      "tags": ["3.10-trixie"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.10-bookworm": {
+      "pythonVersion": "3.10",
+      "tags": ["3.10-bookworm", "3.10"],
       "architectures": ["linux/amd64", "linux/arm64"]
     }
   },

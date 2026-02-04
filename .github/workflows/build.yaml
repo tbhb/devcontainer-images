@@ -99,10 +99,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update devcontainer.json with Python version
+      - name: Update devcontainer.json with variant
         run: |
-          # Update the PYTHON_VERSION build arg in devcontainer.json
-          jq --arg version "${{ matrix.python_version }}" \
+          # Update the PYTHON_VERSION build arg to use full variant (e.g., 3.14-trixie)
+          jq --arg version "${{ matrix.variant }}" \
             '.build.args.PYTHON_VERSION = $version' \
             "src/${{ matrix.image }}/.devcontainer/devcontainer.json" > tmp.json
           mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"

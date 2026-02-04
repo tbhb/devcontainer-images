@@ -1,8 +1,11 @@
+[bB]ookworm
 CLI
 [dD]ev
 devcontainers?
+[dD]istro
 [dD]ockerfiles?
 [hH]adolint
 [sS]hell[cC]heck
+[tT]rixie
 uv
 [zZ]sh
