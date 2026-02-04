@@ -20,66 +20,111 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  detect-images:
+  detect-variants:
     runs-on: ubuntu-latest
     outputs:
-      images: ${{ steps.detect.outputs.images }}
+      matrix: ${{ steps.detect.outputs.matrix }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Detect images to build
+      - name: Detect image variants to build
         id: detect
         run: |
+          matrix='{"include":[]}'
+
+          # Find all image directories
           if [[ -n "${{ inputs.image }}" ]]; then
-            images='["${{ inputs.image }}"]'
+            images="${{ inputs.image }}"
           else
-            images=$(find src -maxdepth 1 -mindepth 1 -type d -printf '%f\n' \
-              | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            images=$(find src -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
           fi
-          echo "images=${images}" >> "$GITHUB_OUTPUT"
+
+          for image in $images; do
+            manifest="src/${image}/manifest.json"
+            if [[ -f "$manifest" ]]; then
+              # Read variants from manifest
+              variants=$(jq -r '.variants | keys[]' "$manifest")
+              for variant in $variants; do
+                python_version=$(jq -r ".variants[\"${variant}\"].pythonVersion" "$manifest")
+                # Get tags as JSON array string for proper parsing later
+                tags=$(jq -c ".variants[\"${variant}\"].tags" "$manifest")
+                archs=$(jq -r ".variants[\"${variant}\"].architectures | join(\",\")" "$manifest")
+
+                # shellcheck disable=SC2016
+                matrix=$(echo "$matrix" | jq \
+                  --arg image "$image" \
+                  --arg variant "$variant" \
+                  --arg python_version "$python_version" \
+                  --argjson tags "$tags" \
+                  --arg archs "$archs" \
+                  '.include += [{
+                    "image": $image,
+                    "variant": $variant,
+                    "python_version": $python_version,
+                    "tags": $tags,
+                    "architectures": $archs
+                  }]')
+              done
+            fi
+          done
+
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+          echo "Matrix: ${matrix}"
 
   build:
-    needs: detect-images
+    needs: detect-variants
     runs-on: ubuntu-latest
-    if: ${{ needs.detect-images.outputs.images != '[]' }}
+    if: ${{ fromJson(needs.detect-variants.outputs.matrix).include[0] != null }}
     permissions:
       contents: read
       packages: write
     strategy:
       fail-fast: false
-      matrix:
-        image: ${{ fromJson(needs.detect-images.outputs.images) }}
+      matrix: ${{ fromJson(needs.detect-variants.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
 
       - name: Log in to GHCR
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read manifest
-        id: manifest
+      - name: Update devcontainer.json with Python version
         run: |
-          if [[ -f "src/${{ matrix.image }}/manifest.json" ]]; then
-            version=$(jq -r '.version' "src/${{ matrix.image }}/manifest.json")
-            echo "version=${version}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=latest" >> "$GITHUB_OUTPUT"
-          fi
+          # Update the PYTHON_VERSION build arg in devcontainer.json
+          jq --arg version "${{ matrix.python_version }}" \
+            '.build.args.PYTHON_VERSION = $version' \
+            "src/${{ matrix.image }}/.devcontainer/devcontainer.json" > tmp.json
+          mv tmp.json "src/${{ matrix.image }}/.devcontainer/devcontainer.json"
 
-      - name: Build and push
-        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
+      - name: Build and push with primary tag
+        uses: devcontainers/ci@d31b57f8bae24dcd5aacd2d543d11c5c7a1d7e3f # v0.3.2
         with:
           imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
-          imageTag: ${{ steps.manifest.outputs.version }}
+          imageTag: ${{ matrix.tags[0] }}
           subFolder: src/${{ matrix.image }}
-          platform: linux/amd64,linux/arm64
+          platform: ${{ matrix.architectures }}
           push: always
+
+      - name: Add additional tags
+        run: |
+          image_name="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}"
+          primary_tag="${{ matrix.tags[0] }}"
+
+          # Skip first tag (already pushed), add remaining tags
+          tags='${{ toJson(matrix.tags) }}'
+          for tag in $(echo "$tags" | jq -r '.[]'); do
+            if [[ "$tag" != "$primary_tag" ]]; then
+              echo "Adding tag: ${tag}"
+              docker tag "${image_name}:${primary_tag}" "${image_name}:${tag}"
+              docker push "${image_name}:${tag}"
+            fi
+          done

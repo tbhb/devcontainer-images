@@ -5,3 +5,4 @@ devcontainers?
 [hH]adolint
 [sS]hell[cC]heck
 uv
+[zZ]sh

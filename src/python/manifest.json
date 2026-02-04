@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "variants": {
+    "3.13-bookworm": {
+      "pythonVersion": "3.13",
+      "tags": ["3.13-bookworm", "3.13", "latest"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "3.12-bookworm": {
+      "pythonVersion": "3.12",
+      "tags": ["3.12-bookworm", "3.12"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    }
+  },
+  "dependencies": {
+    "image": "mcr.microsoft.com/devcontainers/python",
+    "imageLink": "https://github.com/devcontainers/images/tree/main/src/python"
+  }
+}
