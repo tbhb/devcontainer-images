@@ -68,8 +68,10 @@ jobs:
             fi
           done
 
-          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
-          echo "Matrix: ${matrix}"
+          # Compact JSON to single line for GITHUB_OUTPUT
+          matrix_compact=$(echo "$matrix" | jq -c .)
+          echo "matrix=${matrix_compact}" >> "$GITHUB_OUTPUT"
+          echo "Matrix: ${matrix_compact}"
 
   build:
     needs: detect-variants
