@@ -117,7 +117,7 @@ jobs:
           push: always
 
       - name: Install crane
-        uses: imjasonh/setup-crane@31b88afe9de28ae0ffa220711af4b60be9435f6e # v0.4
+        uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
 
       - name: Add additional tags
         run: |
