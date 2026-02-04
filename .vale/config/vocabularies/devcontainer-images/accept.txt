@@ -1,11 +1,15 @@
+[bB]iome
 [bB]ookworm
 CLI
+[cC]odespell
 [dD]ev
 devcontainers?
 [dD]istro
 [dD]ockerfiles?
 [hH]adolint
+markdownlint-cli2
 [sS]hell[cC]heck
 [tT]rixie
 uv
+[yY]amllint
 [zZ]sh
