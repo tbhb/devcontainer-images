@@ -1,4 +1,4 @@
-# Dev Container Images
+# Dev container images
 
 Custom [Dev Container](https://containers.dev/) images for development environments.
 
@@ -63,7 +63,7 @@ just shell <image>
 just validate
 ```
 
-### Creating a New Image
+### Creating an image
 
 1. Create a new directory under `src/<image-name>/`
 2. Add `.devcontainer/devcontainer.json` with configuration

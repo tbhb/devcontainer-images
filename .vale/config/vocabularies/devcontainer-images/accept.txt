@@ -1,0 +1,7 @@
+CLI
+[dD]ev
+devcontainers?
+[dD]ockerfiles?
+[hH]adolint
+[sS]hell[cC]heck
+uv
