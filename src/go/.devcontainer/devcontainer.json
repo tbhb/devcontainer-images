@@ -34,9 +34,6 @@
       "version": "2.12.0"
     }
   },
-  "containerEnv": {
-    "UV_LINK_MODE": "copy"
-  },
   "customizations": {
     "vscode": {
       "extensions": ["golang.go"],
