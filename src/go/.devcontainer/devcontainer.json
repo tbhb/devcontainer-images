@@ -22,6 +22,7 @@
     "ghcr.io/tbhb/devcontainer-features/just:1": {
       "version": "latest"
     },
+    "ghcr.io/tbhb/devcontainer-features/biome:1": {},
     "ghcr.io/tbhb/devcontainer-features/shellcheck:1": {},
     "ghcr.io/tbhb/devcontainer-features/zsh-autosuggestions:1": {},
     "ghcr.io/tbhb/devcontainer-features/zsh-syntax-highlighting:1": {},
