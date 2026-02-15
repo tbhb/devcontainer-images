@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "packageName": "devcontainer-python",
   "variants": {
     "3.14-trixie": {
       "pythonVersion": "3.14",

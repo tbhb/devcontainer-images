@@ -45,6 +45,9 @@ jobs:
               # Derive version arg name from image name (e.g., python -> PYTHON_VERSION, go -> GO_VERSION)
               version_arg_name=$(echo "${image}_VERSION" | tr '[:lower:]' '[:upper:]')
 
+              # Read package name from manifest (defaults to image directory name)
+              package_name=$(jq -r '.packageName // $image' --arg image "$image" "$manifest")
+
               # Read variants from manifest
               variants=$(jq -r '.variants | keys[]' "$manifest")
               for variant in $variants; do
@@ -57,12 +60,14 @@ jobs:
                   --arg image "$image" \
                   --arg variant "$variant" \
                   --arg version_arg_name "$version_arg_name" \
+                  --arg package_name "$package_name" \
                   --argjson tags "$tags" \
                   --arg archs "$archs" \
                   '.include += [{
                     "image": $image,
                     "variant": $variant,
                     "version_arg_name": $version_arg_name,
+                    "package_name": $package_name,
                     "tags": $tags,
                     "architectures": $archs
                   }]')
@@ -122,7 +127,7 @@ jobs:
       - name: Build and push image
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
         with:
-          imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
+          imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.package_name }}
           imageTag: ${{ steps.tags.outputs.tags_csv }}
           subFolder: src/${{ matrix.image }}
           platform: ${{ matrix.architectures }}

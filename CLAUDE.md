@@ -1,6 +1,6 @@
 # Dev container images
 
-Repository for custom Dev Container images published to `ghcr.io/tbhb/<image>:<tag>`.
+Repository for custom Dev Container images published to `ghcr.io/tbhb/devcontainer-<image>:<tag>`.
 
 ## Commands (via just)
 

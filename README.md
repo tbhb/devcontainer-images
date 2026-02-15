@@ -8,14 +8,14 @@ Reference images in your `devcontainer.json`:
 
 ```json
 {
-  "image": "ghcr.io/tbhb/<image>:latest"
+  "image": "ghcr.io/tbhb/devcontainer-<image>:latest"
 }
 ```
 
 Or use as a base for your own Dockerfile:
 
 ```dockerfile
-FROM ghcr.io/tbhb/<image>:latest
+FROM ghcr.io/tbhb/devcontainer-<image>:latest
 ```
 
 ## Available Images

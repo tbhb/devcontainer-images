@@ -6,7 +6,7 @@ Go development container with modern tooling pre-installed.
 
 ```json
 {
-  "image": "ghcr.io/tbhb/go:1.25"
+  "image": "ghcr.io/tbhb/devcontainer-go:1.25"
 }
 ```
 

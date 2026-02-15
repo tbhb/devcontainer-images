@@ -6,7 +6,7 @@ Python development container with [uv](https://docs.astral.sh/uv/) pre-installed
 
 ```json
 {
-  "image": "ghcr.io/tbhb/python:3.14"
+  "image": "ghcr.io/tbhb/devcontainer-python:3.14"
 }
 ```
 

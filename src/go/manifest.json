@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "packageName": "devcontainer-go",
   "variants": {
     "1.25-trixie": {
       "goVersion": "1.25",
