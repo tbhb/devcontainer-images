@@ -2,24 +2,24 @@
   "version": "1.0.0",
   "packageName": "devcontainer-go",
   "variants": {
+    "dev-1.26-trixie": {
+      "goVersion": "1.26",
+      "tags": ["1.26-trixie", "1.26", "1", "trixie", "latest"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
+    "dev-1.26-bookworm": {
+      "goVersion": "1.26",
+      "tags": ["1.26-bookworm"],
+      "architectures": ["linux/amd64", "linux/arm64"]
+    },
     "1.25-trixie": {
       "goVersion": "1.25",
-      "tags": ["1.25-trixie", "1.25", "1", "trixie", "latest"],
+      "tags": ["1.25-trixie", "1.25"],
       "architectures": ["linux/amd64", "linux/arm64"]
     },
     "1.25-bookworm": {
       "goVersion": "1.25",
-      "tags": ["1.25-bookworm"],
-      "architectures": ["linux/amd64", "linux/arm64"]
-    },
-    "1.24-trixie": {
-      "goVersion": "1.24",
-      "tags": ["1.24-trixie"],
-      "architectures": ["linux/amd64", "linux/arm64"]
-    },
-    "1.24-bookworm": {
-      "goVersion": "1.24",
-      "tags": ["1.24-bookworm", "1.24", "bookworm"],
+      "tags": ["1.25-bookworm", "bookworm"],
       "architectures": ["linux/amd64", "linux/arm64"]
     }
   },

@@ -2,7 +2,7 @@
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
-      "GO_VERSION": "1.25"
+      "GO_VERSION": "dev-1.26"
     }
   },
   "features": {
