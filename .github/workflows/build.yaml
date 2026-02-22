@@ -43,7 +43,7 @@ jobs:
             manifest="src/${image}/manifest.json"
             if [[ -f "$manifest" ]]; then
               # Derive version arg name from image name (e.g., python -> PYTHON_VERSION, go -> GO_VERSION)
-              version_arg_name=$(echo "${image}_VERSION" | tr '[:lower:]' '[:upper:]')
+              version_arg_name=$(echo "${image}_VERSION" | tr '[:lower:]-' '[:upper:]_')
 
               # Read package name from manifest (defaults to image directory name)
               package_name=$(jq -r '.packageName // $image' --arg image "$image" "$manifest")
